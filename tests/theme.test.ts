@@ -22,7 +22,7 @@ describe('theme preference', () => {
     vi.stubGlobal('matchMedia', vi.fn(() => ({ matches: true })))
     expect(loadTheme()).toBe('dark')
 
-    values.set('md2odf:theme:v1', 'invalid')
+    values.set('md2odt:theme:v1', 'invalid')
     expect(loadTheme()).toBe('dark')
   })
 

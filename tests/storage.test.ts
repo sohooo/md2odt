@@ -22,7 +22,7 @@ describe('local draft storage', () => {
   })
 
   it('ignores malformed stored data', () => {
-    values.set('md2odf:draft:v1', '{broken')
+    values.set('md2odt:draft:v1', '{broken')
     expect(loadDraft()).toBeUndefined()
   })
 })

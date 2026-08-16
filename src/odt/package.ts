@@ -39,7 +39,7 @@ function createMetaXml(metadata: DocumentMetadata): string {
   xmlns:dc="http://purl.org/dc/elements/1.1/"
   office:version="1.3">
   <office:meta>
-    <meta:generator>md2odf</meta:generator>
+    <meta:generator>md2odt</meta:generator>
     <dc:title>${escapeXml(metadata.title || 'Markdown document')}</dc:title>
     <dc:creator>${escapeXml(metadata.creator || '')}</dc:creator>
     <meta:creation-date>${created}</meta:creation-date>

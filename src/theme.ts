@@ -1,6 +1,6 @@
 export type Theme = 'light' | 'dark'
 
-const THEME_KEY = 'md2odf:theme:v1'
+const THEME_KEY = 'md2odt:theme:v1'
 
 function systemTheme(): Theme {
   return typeof matchMedia === 'function' && matchMedia('(prefers-color-scheme: dark)').matches

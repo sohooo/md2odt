@@ -1,9 +1,9 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "md2odf.fullname" . }}
+  name: {{ include "md2odt.fullname" . }}
   labels:
-    {{- include "md2odf.labels" . | nindent 4 }}
+    {{- include "md2odt.labels" . | nindent 4 }}
   {{- with .Values.service.annotations }}
   annotations:
     {{- toYaml . | nindent 4 }}
@@ -17,4 +17,4 @@ spec:
       protocol: TCP
       appProtocol: http
   selector:
-    {{- include "md2odf.selectorLabels" . | nindent 4 }}
+    {{- include "md2odt.selectorLabels" . | nindent 4 }}

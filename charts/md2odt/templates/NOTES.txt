@@ -1,6 +1,6 @@
-md2odf is available inside the cluster at:
+md2odt is available inside the cluster at:
 
-  http://{{ include "md2odf.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
+  http://{{ include "md2odt.fullname" . }}.{{ .Release.Namespace }}.svc.cluster.local:{{ .Values.service.port }}
 
 {{- if .Values.httpRoute.enabled }}
 
@@ -15,5 +15,5 @@ Enable Gateway API routing with:
   --set httpRoute.enabled=true \
   --set httpRoute.parentRefs[0].name=<gateway-name> \
   --set httpRoute.parentRefs[0].namespace=<gateway-namespace> \
-  --set httpRoute.hostnames[0]=md2odf.example.com
+  --set httpRoute.hostnames[0]=md2odt.example.com
 {{- end }}

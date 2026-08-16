@@ -1,4 +1,4 @@
-# replicaCount is the number of md2odf pods to run.
+# replicaCount is the number of md2odt pods to run.
 replicaCount: 1
 
 image:
@@ -96,8 +96,8 @@ httpRoute:
       sectionName: http
   # httpRoute.hostnames lists hostnames matched by the route.
   hostnames:
-    - md2odf.example.com
-  # httpRoute.pathPrefix is the URL path prefix routed to md2odf.
+    - md2odt.example.com
+  # httpRoute.pathPrefix is the URL path prefix routed to md2odt.
   pathPrefix: /
 
 # nodeSelector constrains pods to selected nodes.

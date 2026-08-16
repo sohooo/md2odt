@@ -1,4 +1,4 @@
-const DRAFT_KEY = 'md2odf:draft:v1'
+const DRAFT_KEY = 'md2odt:draft:v1'
 
 export interface Draft {
   markdown: string

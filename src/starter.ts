@@ -1,6 +1,6 @@
 export const starterMarkdown = `# A polished Writer document
 
-md2odf converts **Markdown** into an editable LibreOffice Writer file, entirely in your browser.
+md2odt converts **Markdown** into an editable LibreOffice Writer file, entirely in your browser.
 
 ## Automatic table of contents
 

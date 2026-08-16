@@ -11,6 +11,7 @@ async function openOdt(markdown: string): Promise<{
   zip: JSZip
   content: string
   styles: string
+  meta: string
   manifest: string
 }> {
   const bytes = await createOdt(markdown, { title: 'Regression document' })
@@ -26,6 +27,7 @@ async function openOdt(markdown: string): Promise<{
     zip,
     content: await read('content.xml'),
     styles: await read('styles.xml'),
+    meta: await read('meta.xml'),
     manifest: await read('META-INF/manifest.xml'),
   }
 }
@@ -52,6 +54,7 @@ describe('ODT package', () => {
     expect(document.zip.file('meta.xml')).not.toBeNull()
     expect(document.zip.file('settings.xml')).not.toBeNull()
     expect(document.zip.file('META-INF/manifest.xml')).not.toBeNull()
+    expect(document.meta).toContain('<meta:generator>md2odt</meta:generator>')
 
     for (const path of [
       'content.xml',

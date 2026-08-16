@@ -1,5 +1,5 @@
 apiVersion: v2
-name: md2odf
+name: md2odt
 description: A browser-only Markdown to LibreOffice Writer converter
 type: application
 version: 0.1.0

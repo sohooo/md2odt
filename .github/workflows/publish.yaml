@@ -128,7 +128,7 @@ jobs:
         id: version
         shell: bash
         run: |
-          base_version=$(awk '/^version:/ { print $2; exit }' charts/md2odf/Chart.yaml)
+          base_version=$(awk '/^version:/ { print $2; exit }' charts/md2odt/Chart.yaml)
 
           if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
             chart_version="${GITHUB_REF_NAME#v}"
@@ -150,7 +150,7 @@ jobs:
 
       - name: Package Helm chart
         run: |
-          helm package charts/md2odf \
+          helm package charts/md2odt \
             --destination dist \
             --version "${{ steps.version.outputs.chart_version }}" \
             --app-version "${{ steps.version.outputs.image_tag }}"
@@ -158,8 +158,8 @@ jobs:
       - name: Upload packaged chart
         uses: actions/upload-artifact@v7
         with:
-          name: md2odf-chart-${{ steps.version.outputs.chart_version }}
-          path: dist/md2odf-${{ steps.version.outputs.chart_version }}.tgz
+          name: md2odt-chart-${{ steps.version.outputs.chart_version }}
+          path: dist/md2odt-${{ steps.version.outputs.chart_version }}.tgz
           if-no-files-found: error
           retention-days: 14
 
@@ -176,5 +176,5 @@ jobs:
         if: github.event_name != 'pull_request'
         run: |
           helm push \
-            "dist/md2odf-${{ steps.version.outputs.chart_version }}.tgz" \
+            "dist/md2odt-${{ steps.version.outputs.chart_version }}.tgz" \
             "oci://${HELM_REGISTRY}"
