@@ -128,8 +128,8 @@ Requirements:
 Install and run locally:
 
 ```sh
-npm install
-npm run dev
+pnpm install
+pnpm dev
 ```
 
 Create a production build:
