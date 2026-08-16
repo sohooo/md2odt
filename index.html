@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Convert Markdown into a polished, editable LibreOffice Writer document."
+    />
+    <title>md2odf — Markdown to LibreOffice</title>
+  </head>
+  <body>
+    <header class="app-header">
+      <a class="brand" href="/" aria-label="md2odf home">
+        <span class="brand-mark" aria-hidden="true">M↓</span>
+        <span>
+          <strong>md2odf</strong>
+          <small>Markdown → LibreOffice Writer</small>
+        </span>
+      </a>
+      <div class="header-actions">
+        <label class="filename-field">
+          <span>Filename</span>
+          <input id="filename" type="text" value="document" autocomplete="off" />
+          <b>.odt</b>
+        </label>
+        <button id="download" class="button button-primary" type="button">
+          Download ODT
+        </button>
+      </div>
+    </header>
+
+    <main>
+      <section class="workspace" aria-label="Markdown conversion workspace">
+        <article class="panel editor-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Source</p>
+              <h1>Markdown</h1>
+            </div>
+            <div class="editor-actions">
+              <input id="image-input" type="file" accept="image/*" hidden />
+              <button id="insert-image" class="button button-quiet" type="button">
+                Add image
+              </button>
+              <button id="clear" class="button button-quiet" type="button">
+                Clear
+              </button>
+            </div>
+          </div>
+          <label class="sr-only" for="markdown">Markdown document</label>
+          <textarea id="markdown" spellcheck="true"></textarea>
+          <footer class="panel-footer">
+            <span id="save-status">Saved locally</span>
+            <span><kbd>Ctrl</kbd>/<kbd>⌘</kbd> + <kbd>S</kbd> to download</span>
+          </footer>
+        </article>
+
+        <article class="panel preview-panel">
+          <div class="panel-header">
+            <div>
+              <p class="eyebrow">Output preview</p>
+              <h2>Document</h2>
+            </div>
+            <span class="privacy-note">Runs entirely in your browser</span>
+          </div>
+          <div id="preview" class="document-preview" aria-live="polite"></div>
+        </article>
+      </section>
+      <p id="message" class="message" role="status" aria-live="polite"></p>
+    </main>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
