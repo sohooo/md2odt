@@ -19,6 +19,7 @@ require_manifest_text() {
 }
 
 require_manifest_text "kind: Deployment"
+require_manifest_text 'image: "ghcr.io/sohooo/md2odt:0.1.0"'
 require_manifest_text "startupProbe:"
 require_manifest_text "readinessProbe:"
 require_manifest_text "livenessProbe:"

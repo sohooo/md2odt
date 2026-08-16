@@ -4,6 +4,9 @@ description: A browser-only Markdown to LibreOffice Writer converter
 type: application
 version: 0.1.0
 appVersion: "0.1.0"
+home: https://github.com/sohooo/md2odt
+sources:
+  - https://github.com/sohooo/md2odt
 keywords:
   - markdown
   - odt

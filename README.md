@@ -4,6 +4,44 @@
 
 md2odf is a small, private web app that turns Markdown into a polished and editable OpenDocument Text (`.odt`) file. Conversion happens entirely in the browser: documents and images are not uploaded to a server.
 
+## Kubernetes quickstart
+
+Released images and charts are published to GitHub Container Registry. The chart already points at the matching `ghcr.io/sohooo/md2odt` image, so a stable release can be installed directly without cloning this repository:
+
+```sh
+VERSION=0.1.0
+
+helm upgrade --install md2odf \
+  oci://ghcr.io/sohooo/charts/md2odf \
+  --version "${VERSION}" \
+  --namespace md2odf \
+  --create-namespace
+```
+
+Wait for the application and access it locally:
+
+```sh
+kubectl --namespace md2odf rollout status deployment/md2odf
+kubectl --namespace md2odf port-forward service/md2odf 8080:80
+```
+
+Open `http://localhost:8080`. To expose it through an existing Gateway API Gateway, add the route settings during installation:
+
+```sh
+helm upgrade --install md2odf \
+  oci://ghcr.io/sohooo/charts/md2odf \
+  --version "${VERSION}" \
+  --namespace md2odf \
+  --create-namespace \
+  --set httpRoute.enabled=true \
+  --set 'httpRoute.parentRefs[0].name=public-gateway' \
+  --set 'httpRoute.parentRefs[0].namespace=gateway-system' \
+  --set 'httpRoute.parentRefs[0].sectionName=https' \
+  --set 'httpRoute.hostnames[0]=md2odf.example.com'
+```
+
+Change the version and Gateway values to match your release and cluster. The HTTPRoute requires the Gateway API CRDs, a compatible controller, and a Gateway listener that permits routes from the `md2odf` namespace.
+
 ## Current feature set
 
 - Live Markdown preview
@@ -116,6 +154,8 @@ docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=16m \
 
 Then open `http://localhost:8080` or check `http://localhost:8080/healthz`.
 
+Published release images are available as `ghcr.io/sohooo/md2odt:<version>`. The `edge` tag tracks the latest successful build from `master`; every published build also has an immutable `sha-<commit>` tag.
+
 ## Kubernetes and Helm
 
 The chart in `charts/md2odf` creates:
@@ -159,6 +199,17 @@ helm upgrade --install md2odf charts/md2odf \
 ```
 
 The cluster must have the Gateway API CRDs and a compatible Gateway controller installed before enabling the HTTPRoute.
+
+## Automated releases
+
+The GitHub Actions workflow validates the application and Helm chart on pull requests. For pushes to `master`, it publishes:
+
+- A multi-architecture `linux/amd64` and `linux/arm64` image tagged `edge` and `sha-<commit>`
+- A uniquely versioned development Helm chart under `oci://ghcr.io/sohooo/charts/md2odf`
+
+Pushing a semantic version tag such as `v0.2.0` publishes matching `0.2.0` image and chart versions. The container build includes BuildKit caching, an SBOM, and provenance attestations. Every workflow run also stores the packaged chart as a downloadable GitHub Actions artifact.
+
+Publishing uses the workflow-provided `GITHUB_TOKEN`; no registry secret is required. After the first run, ensure the two GHCR packages inherit this repository's access or mark them public if the quickstart should work without GitHub authentication.
 
 ## Tests
 

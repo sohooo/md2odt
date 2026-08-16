@@ -1,0 +1,180 @@
+name: Build and publish
+
+on:
+  push:
+    branches:
+      - master
+    tags:
+      - "v*.*.*"
+  pull_request:
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+  HELM_REGISTRY: ghcr.io/${{ github.repository_owner }}/charts
+  DOCKER_METADATA_SHORT_SHA_LENGTH: 12
+
+jobs:
+  validate:
+    name: Validate application and chart
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v6
+        with:
+          version: 11.19.0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run application tests
+        run: pnpm test
+
+      - name: Build application
+        run: pnpm build
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v4.2.0
+
+      - name: Validate Helm chart
+        run: pnpm test:helm
+
+  container:
+    name: Build and publish container
+    needs: validate
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Generate image metadata
+        id: metadata
+        uses: docker/metadata-action@v6
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+            type=semver,pattern={{major}}
+            type=raw,value=edge,enable={{is_default_branch}}
+            type=sha,format=short,prefix=sha-
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and publish image
+        uses: docker/build-push-action@v7
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+          provenance: mode=max
+          sbom: true
+
+  helm-chart:
+    name: Package and publish Helm chart
+    needs:
+      - validate
+      - container
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Set up Helm
+        uses: azure/setup-helm@v5
+        with:
+          version: v4.2.0
+
+      - name: Determine chart and image versions
+        id: version
+        shell: bash
+        run: |
+          base_version=$(awk '/^version:/ { print $2; exit }' charts/md2odf/Chart.yaml)
+
+          if [[ "${GITHUB_REF_TYPE}" == "tag" ]]; then
+            chart_version="${GITHUB_REF_NAME#v}"
+            image_tag="${chart_version}"
+            if [[ ! "${chart_version}" =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[0-9A-Za-z.-]+)?$ ]]; then
+              echo "Tag ${GITHUB_REF_NAME} is not a valid semantic version" >&2
+              exit 1
+            fi
+          elif [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]]; then
+            chart_version="${base_version}-pr.${{ github.event.pull_request.number }}.${GITHUB_RUN_ATTEMPT}"
+            image_tag="pr-${{ github.event.pull_request.number }}"
+          else
+            chart_version="${base_version}-dev.${GITHUB_RUN_NUMBER}.${GITHUB_RUN_ATTEMPT}"
+            image_tag="sha-${GITHUB_SHA:0:12}"
+          fi
+
+          echo "chart_version=${chart_version}" >> "${GITHUB_OUTPUT}"
+          echo "image_tag=${image_tag}" >> "${GITHUB_OUTPUT}"
+
+      - name: Package Helm chart
+        run: |
+          helm package charts/md2odf \
+            --destination dist \
+            --version "${{ steps.version.outputs.chart_version }}" \
+            --app-version "${{ steps.version.outputs.image_tag }}"
+
+      - name: Upload packaged chart
+        uses: actions/upload-artifact@v7
+        with:
+          name: md2odf-chart-${{ steps.version.outputs.chart_version }}
+          path: dist/md2odf-${{ steps.version.outputs.chart_version }}.tgz
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Log in to GitHub Container Registry with Helm
+        if: github.event_name != 'pull_request'
+        shell: bash
+        run: |
+          printf '%s' "${{ secrets.GITHUB_TOKEN }}" | \
+            helm registry login "${REGISTRY}" \
+              --username "${{ github.actor }}" \
+              --password-stdin
+
+      - name: Publish Helm chart to GHCR
+        if: github.event_name != 'pull_request'
+        run: |
+          helm push \
+            "dist/md2odf-${{ steps.version.outputs.chart_version }}.tgz" \
+            "oci://${HELM_REGISTRY}"
