@@ -4,7 +4,7 @@ md2odf converts **Markdown** into an editable LibreOffice Writer file, entirely 
 
 ## Automatic table of contents
 
-The document begins with an automatically generated table of contents. Every Markdown heading is listed with its semantic level and links to the corresponding section.
+The page title comes first, followed by an automatically generated table of contents. Every Markdown heading is listed with its semantic level and links to the corresponding section.
 
 ## Semantic headings
 
@@ -23,6 +23,19 @@ Numbered lists retain their numbering:
 1. Write Markdown
 2. Check the preview
 3. Download the ODT
+
+### Quotations
+
+> Good tools make the simple things easy and the difficult things possible.
+
+### Code blocks
+
+Fenced code remains readable without language-specific highlighting:
+
+~~~text
+const document = await createOdt(markdown)
+save(document)
+~~~
 
 ### Tables
 

@@ -71,6 +71,11 @@ export function createStylesXml(): string {
   xmlns:fo="urn:oasis:names:tc:opendocument:xmlns:xsl-fo-compatible:1.0"
   xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
   office:version="1.3">
+  <office:font-face-decls>
+    <style:font-face style:name="Liberation Serif" svg:font-family="'Liberation Serif'" style:font-family-generic="roman" style:font-pitch="variable"/>
+    <style:font-face style:name="Liberation Sans" svg:font-family="'Liberation Sans'" style:font-family-generic="swiss" style:font-pitch="variable"/>
+    <style:font-face style:name="Liberation Mono" svg:font-family="'Liberation Mono'" style:font-family-generic="modern" style:font-pitch="fixed"/>
+  </office:font-face-decls>
   <office:styles>
     <style:default-style style:family="paragraph">
       <style:paragraph-properties fo:orphans="2" fo:widows="2" fo:line-height="120%"/>
@@ -84,11 +89,11 @@ export function createStylesXml(): string {
       <style:text-properties style:font-name="Liberation Sans"/>
     </style:style>${headingStyles}
     <style:style style:name="Blockquote" style:display-name="Block Quotation" style:family="paragraph" style:parent-style-name="Text_20_body">
-      <style:paragraph-properties fo:margin-left="0.75cm" fo:border-left="1.5pt solid #7c9b83" fo:padding-left="0.35cm"/>
+      <style:paragraph-properties fo:margin-left="0.75cm" fo:margin-right="0.5cm" fo:border-left="1.5pt solid #7c9b83" fo:padding-left="0.35cm"/>
       <style:text-properties fo:color="#526057"/>
     </style:style>
     <style:style style:name="Code_20_Block" style:display-name="Code Block" style:family="paragraph" style:parent-style-name="Standard">
-      <style:paragraph-properties fo:background-color="#eef1ed" fo:padding="0.25cm" fo:margin-bottom="0.2cm"/>
+      <style:paragraph-properties fo:background-color="#eef1ed" fo:border="0.5pt solid #c9d0c8" fo:padding="0.3cm" fo:margin-top="0.15cm" fo:margin-bottom="0.25cm"/>
       <style:text-properties style:font-name="Liberation Mono" fo:font-size="9pt"/>
     </style:style>
     <style:style style:name="Footnote" style:family="paragraph" style:parent-style-name="Standard" style:class="extra">

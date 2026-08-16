@@ -48,7 +48,11 @@ class Renderer {
   }
 
   async render(): Promise<RenderedDocument> {
-    const body = await this.renderBlocks(this.root.children || [])
+    const blocks = this.root.children || []
+    const [firstBlock, ...remainingBlocks] = blocks
+    const hasTitle = firstBlock?.type === 'heading' && firstBlock.depth === 1
+    const title = hasTitle ? await this.renderBlock(firstBlock) : ''
+    const body = await this.renderBlocks(hasTitle ? remainingBlocks : blocks)
     const toc = this.renderToc()
     const contentXml = `<?xml version="1.0" encoding="UTF-8"?>
 <office:document-content
@@ -62,7 +66,7 @@ class Renderer {
   xmlns:svg="urn:oasis:names:tc:opendocument:xmlns:svg-compatible:1.0"
   office:version="1.3">${CONTENT_AUTOMATIC_STYLES}
   <office:body>
-    <office:text>${toc}${body}
+    <office:text>${title}${toc}${body}
     </office:text>
   </office:body>
 </office:document-content>`

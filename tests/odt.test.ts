@@ -77,11 +77,15 @@ describe('ODT package', () => {
 describe('semantic headings and table of contents', () => {
   it('maps each Markdown heading to its Writer heading style and TOC entry', async () => {
     const document = await openOdt('# Introduction\n\n## Details\n\n### More details')
+    const titlePosition = document.content.indexOf('<text:h ')
+    const tocPosition = document.content.indexOf('<text:table-of-content')
+    const sectionPosition = document.content.indexOf(
+      '<text:h text:style-name="Heading_20_2"',
+    )
 
     expect(document.content).toContain('text:table-of-content text:name="Table of Contents"')
-    expect(document.content.indexOf('<text:table-of-content')).toBeLessThan(
-      document.content.indexOf('<text:h '),
-    )
+    expect(titlePosition).toBeLessThan(tocPosition)
+    expect(tocPosition).toBeLessThan(sectionPosition)
     expect(document.content).toContain('text:use-outline-level="true"')
     expect(document.content).toContain('text:style-name="Heading_20_1" text:outline-level="1"')
     expect(document.content).toContain('text:style-name="Heading_20_2" text:outline-level="2"')
@@ -98,6 +102,33 @@ describe('semantic headings and table of contents', () => {
 
     expect(document.content).toContain('text:name="same"')
     expect(document.content).toContain('text:name="same-2"')
+  })
+})
+
+describe('quotations and code blocks', () => {
+  it('maps a Markdown quotation to the Writer block quotation style', async () => {
+    const document = await openOdt('> A thoughtful **quotation**.\n>\n> A second paragraph.')
+
+    expect(document.content.match(/text:style-name="Blockquote"/g)).toHaveLength(2)
+    expect(document.content).toContain(
+      '<text:span text:style-name="Strong_20_Emphasis">quotation</text:span>',
+    )
+    expect(document.styles).toContain('style:display-name="Block Quotation"')
+    expect(document.styles).toContain('fo:border-left="1.5pt solid #7c9b83"')
+  })
+
+  it('preserves fenced code as a styled fixed-width block without highlighting', async () => {
+    const document = await openOdt(
+      '~~~typescript\nconst answer = 42\nif (answer > 0) {\n  console.log(answer)\n}\n~~~',
+    )
+
+    expect(document.content).toContain('<text:p text:style-name="Code_20_Block">')
+    expect(document.content).toContain('const answer = 42<text:line-break/>')
+    expect(document.content).toContain('if (answer &gt; 0) {<text:line-break/>')
+    expect(document.content).toContain(' <text:s text:c="1"/>console.log(answer)')
+    expect(document.styles).toContain('style:display-name="Code Block"')
+    expect(document.styles).toContain('style:font-name="Liberation Mono"')
+    expect(document.styles).toContain('style:font-pitch="fixed"')
   })
 })
 
