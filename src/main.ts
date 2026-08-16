@@ -3,6 +3,7 @@ import { renderPreview } from './markdown/preview'
 import { createOdt, odtBlob } from './odt/export'
 import { starterMarkdown } from './starter'
 import { clearDraft, loadDraft, saveDraft } from './storage'
+import { applyTheme, loadTheme, saveTheme, type Theme } from './theme'
 
 function element<T extends HTMLElement>(selector: string): T {
   const found = document.querySelector<T>(selector)
@@ -19,10 +20,14 @@ const insertImageButton = element<HTMLButtonElement>('#insert-image')
 const imageInput = element<HTMLInputElement>('#image-input')
 const saveStatus = element<HTMLSpanElement>('#save-status')
 const message = element<HTMLParagraphElement>('#message')
+const themeToggle = element<HTMLInputElement>('#theme-toggle')
 
 const draft = loadDraft()
 markdown.value = draft?.markdown || starterMarkdown
 filename.value = draft?.filename || 'document'
+const initialTheme = loadTheme()
+applyTheme(initialTheme)
+themeToggle.checked = initialTheme === 'dark'
 
 let saveTimer: number | undefined
 let messageTimer: number | undefined
@@ -102,6 +107,11 @@ markdown.addEventListener('input', () => {
 
 filename.addEventListener('input', queueSave)
 downloadButton.addEventListener('click', () => void downloadDocument())
+themeToggle.addEventListener('change', () => {
+  const theme: Theme = themeToggle.checked ? 'dark' : 'light'
+  applyTheme(theme)
+  saveTheme(theme)
+})
 
 clearButton.addEventListener('click', () => {
   markdown.value = ''

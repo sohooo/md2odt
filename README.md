@@ -7,6 +7,7 @@ md2odf is a small, private web app that turns Markdown into a polished and edita
 ## Current feature set
 
 - Live Markdown preview
+- Light and dark interface themes with a persistent header slider
 - Native LibreOffice Writer `.odt` downloads
 - Semantic headings from level 1 through 6
   - `# Heading` becomes the Writer style **Heading 1**
@@ -123,6 +124,7 @@ The tests cover:
 - Markdown preview output and raw-HTML safety
 - XML escaping and whitespace preservation
 - Local draft persistence
+- Theme preference persistence and system-theme fallback
 
 Each exported-document test opens the generated ZIP in memory and inspects its ODF XML and embedded assets. This makes document-format regressions visible before release.
 
