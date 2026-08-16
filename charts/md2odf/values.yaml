@@ -1,0 +1,113 @@
+# replicaCount is the number of md2odf pods to run.
+replicaCount: 1
+
+image:
+  # image.repository is the container image repository.
+  repository: md2odf
+  # image.pullPolicy controls when Kubernetes pulls the image.
+  pullPolicy: IfNotPresent
+  # image.tag overrides the chart appVersion when non-empty.
+  tag: ""
+
+# imagePullSecrets lists secrets used to pull images from private registries.
+imagePullSecrets: []
+# nameOverride replaces the chart name in resource names.
+nameOverride: ""
+# fullnameOverride replaces the generated full resource name.
+fullnameOverride: ""
+
+# podAnnotations adds annotations to the pod template.
+podAnnotations: {}
+# podLabels adds labels to the pod template.
+podLabels: {}
+
+# podSecurityContext defines pod-level security settings.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 101
+  runAsGroup: 101
+  fsGroup: 101
+  seccompProfile:
+    type: RuntimeDefault
+
+# securityContext defines container-level security settings.
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop:
+      - ALL
+
+service:
+  # service.type is the Kubernetes Service type.
+  type: ClusterIP
+  # service.port is the port exposed by the Service.
+  port: 80
+  # service.annotations adds annotations to the Service.
+  annotations: {}
+
+probes:
+  startup:
+    # probes.startup.enabled controls the startup probe.
+    enabled: true
+    # probes.startup.periodSeconds controls startup check frequency.
+    periodSeconds: 2
+    # probes.startup.timeoutSeconds is the startup check timeout.
+    timeoutSeconds: 1
+    # probes.startup.failureThreshold controls startup failure tolerance.
+    failureThreshold: 15
+  readiness:
+    # probes.readiness.enabled controls the readiness probe.
+    enabled: true
+    # probes.readiness.periodSeconds controls readiness check frequency.
+    periodSeconds: 10
+    # probes.readiness.timeoutSeconds is the readiness check timeout.
+    timeoutSeconds: 1
+    # probes.readiness.failureThreshold controls readiness failure tolerance.
+    failureThreshold: 3
+  liveness:
+    # probes.liveness.enabled controls the liveness probe.
+    enabled: true
+    # probes.liveness.periodSeconds controls liveness check frequency.
+    periodSeconds: 30
+    # probes.liveness.timeoutSeconds is the liveness check timeout.
+    timeoutSeconds: 2
+    # probes.liveness.failureThreshold controls liveness failure tolerance.
+    failureThreshold: 3
+
+# resources defines CPU and memory requests and limits.
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
+
+httpRoute:
+  # httpRoute.enabled creates a Gateway API HTTPRoute when true.
+  enabled: false
+  # httpRoute.annotations adds annotations to the HTTPRoute.
+  annotations: {}
+  # httpRoute.parentRefs identifies the Gateway listeners that accept this route.
+  parentRefs:
+    - name: gateway
+      namespace: gateway-system
+      sectionName: http
+  # httpRoute.hostnames lists hostnames matched by the route.
+  hostnames:
+    - md2odf.example.com
+  # httpRoute.pathPrefix is the URL path prefix routed to md2odf.
+  pathPrefix: /
+
+# nodeSelector constrains pods to selected nodes.
+nodeSelector: {}
+# tolerations configures pod scheduling tolerations.
+tolerations: []
+# affinity configures pod scheduling affinity.
+affinity: {}
+# topologySpreadConstraints configures distribution of replicas across topology domains.
+topologySpreadConstraints: []
+
+# terminationGracePeriodSeconds controls graceful pod shutdown time.
+terminationGracePeriodSeconds: 10

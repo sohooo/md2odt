@@ -102,12 +102,76 @@ npm run build
 
 The static build is written to `dist/` and can be served by any static web host.
 
+## Container image
+
+The multi-stage Docker build compiles the application with Node.js and copies only the static output into an Alpine-based, unprivileged NGINX runtime. The resulting container runs as user `101`, listens on port `8080`, and exposes a small `/healthz` endpoint.
+
+Build and run it locally:
+
+```sh
+docker build --tag md2odf:0.1.0 .
+docker run --rm --read-only --tmpfs /tmp:rw,noexec,nosuid,size=16m \
+  --publish 8080:8080 md2odf:0.1.0
+```
+
+Then open `http://localhost:8080` or check `http://localhost:8080/healthz`.
+
+## Kubernetes and Helm
+
+The chart in `charts/md2odf` creates:
+
+- A rolling-update Deployment running without root privileges
+- A ClusterIP Service
+- Startup, readiness, and liveness HTTP probes against `/healthz`
+- A read-only root filesystem with a size-limited temporary volume
+- An optional Gateway API `HTTPRoute`
+- Conservative CPU and memory requests and limits
+
+Build and push the image to a registry, then install it with:
+
+```sh
+helm upgrade --install md2odf charts/md2odf \
+  --namespace md2odf --create-namespace \
+  --set image.repository=registry.example.com/md2odf \
+  --set image.tag=0.1.0
+```
+
+The HTTPRoute is disabled by default because it requires Gateway API and an existing Gateway. Enable it with a values file such as:
+
+```yaml
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: public-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - md2odf.example.com
+  pathPrefix: /
+```
+
+Apply the configuration during installation:
+
+```sh
+helm upgrade --install md2odf charts/md2odf \
+  --namespace md2odf --create-namespace \
+  --values my-values.yaml
+```
+
+The cluster must have the Gateway API CRDs and a compatible Gateway controller installed before enabling the HTTPRoute.
+
 ## Tests
 
 Run the complete regression suite with:
 
 ```sh
 npm test
+```
+
+Validate the Helm chart separately with:
+
+```sh
+npm run test:helm
 ```
 
 The tests cover:
@@ -125,6 +189,7 @@ The tests cover:
 - XML escaping and whitespace preservation
 - Local draft persistence
 - Theme preference persistence and system-theme fallback
+- Helm rendering, health probes, workload hardening, and HTTPRoute generation
 
 Each exported-document test opens the generated ZIP in memory and inspects its ODF XML and embedded assets. This makes document-format regressions visible before release.
 
