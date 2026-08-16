@@ -302,6 +302,55 @@ kbd {
   margin-top: 0;
 }
 
+.preview-toc {
+  margin: 0 0 2.5rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid #cad5cc;
+  border-radius: 0.35rem;
+  background: #f5f8f4;
+}
+
+.preview-toc h2 {
+  margin: 0 0 0.65rem;
+  font-size: 1.25rem;
+}
+
+.preview-toc ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.preview-toc li {
+  margin: 0.2rem 0;
+}
+
+.preview-toc a {
+  color: #24533a;
+  text-decoration-color: #a7bbaa;
+  text-underline-offset: 0.15em;
+}
+
+.preview-toc .toc-level-2 {
+  margin-left: 1rem;
+}
+
+.preview-toc .toc-level-3 {
+  margin-left: 2rem;
+}
+
+.preview-toc .toc-level-4 {
+  margin-left: 3rem;
+}
+
+.preview-toc .toc-level-5 {
+  margin-left: 4rem;
+}
+
+.preview-toc .toc-level-6 {
+  margin-left: 5rem;
+}
+
 .document-preview h1 {
   padding-bottom: 0.25em;
   border-bottom: 2px solid #9eb4a2;

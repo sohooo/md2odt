@@ -12,7 +12,7 @@ md2odf is a small, private web app that turns Markdown into a polished and edita
   - `# Heading` becomes the Writer style **Heading 1**
   - `## Heading` becomes **Heading 2**, and so on
   - Heading levels remain visible in Writer's document outline
-- An automatically generated table of contents containing every Markdown heading
+- An automatically generated table of contents at the beginning of the preview and exported document, containing every Markdown heading
 - Native numbered and unnumbered Writer lists, including nested lists
 - Styled GFM tables with a shaded header, alternating row colors, borders, padding, and column alignment
 - Embedded PNG, JPEG, GIF, WebP, and SVG images
@@ -113,7 +113,7 @@ The tests cover:
 
 - Valid ODT packaging and XML files
 - The required uncompressed first `mimetype` entry
-- Semantic Heading 1–6 styles and generated TOC entries
+- Semantic Heading 1–6 styles, generated TOC entries, and TOC placement before document content
 - Unique heading bookmarks
 - Numbered, unnumbered, nested, and custom-start lists
 - Styled and aligned tables

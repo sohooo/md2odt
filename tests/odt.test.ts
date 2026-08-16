@@ -79,6 +79,9 @@ describe('semantic headings and table of contents', () => {
     const document = await openOdt('# Introduction\n\n## Details\n\n### More details')
 
     expect(document.content).toContain('text:table-of-content text:name="Table of Contents"')
+    expect(document.content.indexOf('<text:table-of-content')).toBeLessThan(
+      document.content.indexOf('<text:h '),
+    )
     expect(document.content).toContain('text:use-outline-level="true"')
     expect(document.content).toContain('text:style-name="Heading_20_1" text:outline-level="1"')
     expect(document.content).toContain('text:style-name="Heading_20_2" text:outline-level="2"')
